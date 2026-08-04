@@ -31,14 +31,14 @@ const connectDB = async () => {
     console.log('📡 MongoDB connecté avec succès !');
 
     // PEUPLEMENT AUTOMATIQUE AU DÉMARRAGE
-    const count = await Produit.countDocuments();
-    if (count === 0) {
-      console.log('🌱 Base de données vide. Insertion automatique des produits de test...');
-      await Produit.insertMany(seedProduits);
-      console.log('✅ Produits de test insérés avec succès !');
-    } else {
-      console.log('📦 Des produits existent déjà dans la base de données.');
-    }
+    //const count = await Produit.countDocuments();
+    //if (count === 0) {
+      //console.log('🌱 Base de données vide. Insertion automatique des produits de test...');
+      //await Produit.insertMany(seedProduits);
+      //console.log('✅ Produits de test insérés avec succès !');
+    //} else {
+      //console.log('📦 Des produits existent déjà dans la base de données.');
+    //}
 
   } catch (error) {
     console.error('❌ Erreur de connexion ou de peuplement :', error.message);

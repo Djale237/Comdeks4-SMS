@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assistant Agricole - Bogo</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 20px; display: flex; justify-content: center; }
+    .chat-container { width: 100%; max-width: 500px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2 { color: #2e7d32; text-align: center; margin-top: 0; }
+    .chat-box { height: 350px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 8px; margin-bottom: 15px; background: #fafafa; }
+    .message { margin-bottom: 10px; padding: 8px 12px; border-radius: 8px; max-width: 80%; line-height: 1.4; word-wrap: break-word; }
+    .user { background: #e3f2fd; color: #1565c0; margin-left: auto; text-align: right; }
+    .bot { background: #e8f5e9; color: #1b5e20; margin-right: auto; }
+    /* Nouveau style pour les erreurs/avertissements proprements présentés */
+    .bot-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; margin-right: auto; }
+    .input-group { display: flex; gap: 8px; }
+    input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    button { padding: 10px 16px; background: #2e7d32; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #1b5e20; }
+  </style>
+</head>
+<body>
+
+  <div class="chat-container">
+    <h2>🌾 Assistant Agricole de Bogo</h2>
+    <div class="chat-box" id="chatBox">
+      <div class="message bot">Bonjour ! Je suis votre assistant pour les prix des produits agricoles à Bogo. Posez-moi vos questions !</div>
+    </div>
+    <div class="input-group">
+      <input type="text" id="userInput" placeholder="Ex: Combien coûte le sac de maïs 25kg ?" onkeypress="if(event.key==='Enter') sendMessage()">
+      <button onclick="sendMessage()">Envoyer</button>
+    </div>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const chatBox = document.getElementById('chatBox');
+      
+      // Affichage du message de l'utilisateur
+      chatBox.innerHTML += `<div class="message user">${text}</div>`;
+      input.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Indicateur de chargement
+      const loadingId = 'loading-' + Date.now();
+      chatBox.innerHTML += `<div class="message bot" id="${loadingId}"><i>L'assistant réfléchit...</i></div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+
+        const data = await response.json();
+        
+        // Retirer l'indicateur de chargement
+        const loadingElem = document.getElementById(loadingId);
+        if (loadingElem) loadingElem.remove();
+
+        // Traitement de la réponse
+        if (data.success && data.reponse) {
+          chatBox.innerHTML += `<div class="message bot">${data.reponse.replace(/\n/g, '<br>')}</div>`;
+        } else {
+          // Gestion si le message contient une erreur de quota (429) ou autre
+          let messageErreur = data.message || "Une erreur est survenue.";
+          
+          if (messageErreur.includes("429") || messageErreur.includes("Quota exceeded")) {
+            messageErreur = "L'assistant est actuellement très sollicité. Patientez 1 minute avant de poser une autre question.";
+          }
+
+          chatBox.innerHTML += `<div class="message bot-warning">⚠️ ${messageErreur}</div>`;
+        }
+      } catch (err) {
+        const loadingElem = document.getElementById(loadingId);
+        if (loadingElem) loadingElem.remove();
+
+        chatBox.innerHTML += `<div class="message bot-warning">⚠️ Problème de connexion au serveur. Vérifiez votre réseau.</div>`;
+      }
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
