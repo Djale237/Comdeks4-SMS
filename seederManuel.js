@@ -1,64 +1,77 @@
-// seederManuel.js (Mis à jour pour les 3 cantons)
+﻿// seederManuel.js (Pour les 3 cantons, aligné sur le schéma Produit)
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const Produit = require('./models/Produit'); // Vérifie bien le chemin vers ton modèle
-const connectDB = require('./config/db'); // Vérifie bien le chemin vers ta config db
+const Produit = require('./models/Produit');
+const connectDB = require('./config/db');
 
 // 1. Charger les variables d'environnement (.env)
 dotenv.config();
 
-// 2. Les données de terrain de Djenabou (Mis à jour avec Fourrage dans les 3 cantons)
+// 2. Les données de terrain (alignées sur les enums du modèle Produit)
 const produitsDjenabou = [
-    // --- Produits de base de MORORO ---
     {
-        nom: 'MAIS',
-        unite: 'SAC_15KG',
-        description: 'Maïs grain collecté à la boutique AJEOV Mororo (Canton de Mororo)'
+        nom: 'Maïs',
+        unite: 'sac 10 kg',
+        prix: 1500,
+        categorie: 'Céréale',
+        description: 'Maïs grain collecté à la boutique AJEOV Mororo (Canton de Mororo)',
+        localisation: 'Boutique AJEOV Mororo (Canton de Mororo)'
     },
     {
-        nom: 'MIL',
-        unite: 'SAC_15KG',
-        description: 'Mil grain collecté à la boutique AJEOV Mororo (Canton de Mororo)'
+        nom: 'Mil Rouge',
+        unite: 'sac 100 kg',
+        prix: 9500,
+        categorie: 'Céréale',
+        description: 'Mil grain collecté à la boutique AJEOV Mororo (Canton de Mororo)',
+        localisation: 'Boutique AJEOV Mororo (Canton de Mororo)'
     },
     {
-        nom: 'SORGHO',
-        unite: 'SAC_100KG', 
-        description: 'Sorgho grain centralisé (Canton de Mororo)'
-    },
-    // --- FOURRAGE dans les 3 CANTONS ---
-    {
-        nom: 'FOURRAGE',
-        unite: 'BOTTES_FOURRAGE',
-        description: 'Fourrage hydroponique expérimental (COMDEKS4 - Canton de Mororo)'
+        nom: 'Sorgho',
+        unite: 'sac 100 kg',
+        prix: 13000,
+        categorie: 'Céréale',
+        description: 'Sorgho grain centralisé (Canton de Mororo)',
+        localisation: 'Canton de Mororo'
     },
     {
-        nom: 'FOURRAGE',
-        unite: 'BOTTES_FOURRAGE',
-        description: 'Fourrage hydroponique expérimental (COMDEKS4 - Canton de Guinglaye)'
+        nom: 'Fourrage Hydroponique (Orge)',
+        unite: 'sac 5 kg',
+        prix: 2500,
+        categorie: 'Alimentation Animale',
+        description: 'Fourrage hydroponique expérimental (COMDEKS4 - Canton de Mororo)',
+        localisation: 'COMDEKS4 - Canton de Mororo'
     },
     {
-        nom: 'FOURRAGE',
-        unite: 'BOTTES_FOURRAGE',
-        description: 'Fourrage hydroponique expérimental (COMDEKS4 - Canton de Balda)'
+        nom: 'Fourrage Hydroponique (Orge)',
+        unite: 'sac 5 kg',
+        prix: 2500,
+        categorie: 'Alimentation Animale',
+        description: 'Fourrage hydroponique expérimental (COMDEKS4 - Canton de Guinglaye)',
+        localisation: 'COMDEKS4 - Canton de Guinglaye'
+    },
+    {
+        nom: 'Fourrage Hydroponique (Orge)',
+        unite: 'sac 5 kg',
+        prix: 2500,
+        categorie: 'Alimentation Animale',
+        description: 'Fourrage hydroponique expérimental (COMDEKS4 - Canton de Balda)',
+        localisation: 'COMDEKS4 - Canton de Balda'
     }
 ];
 
 // 3. Fonction d'importation
 const importerDonnees = async () => {
     try {
-        // Connexion à la base de données
         await connectDB();
 
-        // Nettoyage de la collection existante (Optionnel mais recommandé pour tes tests)
+        // Nettoyage de la collection existante
         await Produit.deleteMany();
         console.log('🗑️ Collection Produits nettoyée.');
 
-        // Insertion des nouvelles données
+        // Insertion des nouvelles données (validation Mongoose active)
         const produitsInsertis = await Produit.insertMany(produitsDjenabou);
-        console.log('✅ 6 Produits (incluant le fourrage pour les 3 cantons) insérés avec succès !');
-        console.log(produitsInsertis);
+        console.log(`✅ ${produitsInsertis.length} produits (incluant le fourrage pour les 3 cantons) insérés avec succès !`);
 
-        // Fermeture de la connexion
         mongoose.connection.close();
         console.log('🔌 Connexion DB fermée.');
         process.exit();

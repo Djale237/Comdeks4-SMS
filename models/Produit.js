@@ -6,7 +6,7 @@ const produitSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Un produit doit avoir un nom'],
         trim: true,
-        enum: ['Mil Rouge', 'Sorgho', 'Maïs Blanc', 'Fourrage Hydroponique (Orge)']
+        enum: ['Maïs', 'Mil Rouge', 'Sorgho', 'Fourrage Hydroponique (Orge)']
     },
     description: {
         type: String,
@@ -20,7 +20,7 @@ const produitSchema = new mongoose.Schema({
     unite: {
         type: String,
         required: [true, 'Un produit doit avoir une unité'],
-        enum: ['sac_100kg', 'kg']
+        enum: ['sachet 1 kg', 'sac 5 kg', 'sac 10 kg', 'sac 25 kg', 'sac 100 kg']
     },
     localisation: {
         type: String,

@@ -34,22 +34,30 @@
   </div>
 
   <script>
+    const chatBox = document.getElementById('chatBox');
+
+    // Affiche un message de façon SÛRE (texte brut, pas d'injection HTML)
+    function addMessage(text, className, id) {
+      const div = document.createElement('div');
+      div.className = className;
+      if (id) div.id = id;
+      div.innerText = text; // innerText = texte pur, préserve les retours à la ligne, sans XSS
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
     async function sendMessage() {
       const input = document.getElementById('userInput');
       const text = input.value.trim();
       if (!text) return;
 
-      const chatBox = document.getElementById('chatBox');
-      
       // Affichage du message de l'utilisateur
-      chatBox.innerHTML += `<div class="message user">${text}</div>`;
+      addMessage(text, 'message user');
       input.value = '';
-      chatBox.scrollTop = chatBox.scrollHeight;
 
       // Indicateur de chargement
       const loadingId = 'loading-' + Date.now();
-      chatBox.innerHTML += `<div class="message bot" id="${loadingId}"><i>L'assistant réfléchit...</i></div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
+      addMessage("L'assistant réfléchit...", 'message bot', loadingId);
 
       try {
         const response = await fetch('/api/chat', {
@@ -59,29 +67,25 @@
         });
 
         const data = await response.json();
-        
+
         // Retirer l'indicateur de chargement
         const loadingElem = document.getElementById(loadingId);
         if (loadingElem) loadingElem.remove();
 
         // Traitement de la réponse
         if (data.success && data.reponse) {
-          chatBox.innerHTML += `<div class="message bot">${data.reponse.replace(/\n/g, '<br>')}</div>`;
+          addMessage(data.reponse, 'message bot');
         } else {
-          // Gestion si le message contient une erreur de quota (429) ou autre
           let messageErreur = data.message || "Une erreur est survenue.";
-          
           if (messageErreur.includes("429") || messageErreur.includes("Quota exceeded")) {
             messageErreur = "L'assistant est actuellement très sollicité. Patientez 1 minute avant de poser une autre question.";
           }
-
-          chatBox.innerHTML += `<div class="message bot-warning">⚠️ ${messageErreur}</div>`;
+          addMessage('⚠️ ' + messageErreur, 'message bot-warning');
         }
       } catch (err) {
         const loadingElem = document.getElementById(loadingId);
         if (loadingElem) loadingElem.remove();
-
-        chatBox.innerHTML += `<div class="message bot-warning">⚠️ Problème de connexion au serveur. Vérifiez votre réseau.</div>`;
+        addMessage('⚠️ Problème de connexion au serveur. Vérifiez votre réseau.', 'message bot-warning');
       }
 
       chatBox.scrollTop = chatBox.scrollHeight;

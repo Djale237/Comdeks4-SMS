@@ -10,11 +10,11 @@ exports.listerProduits = async (req, res) => {
   }
 };
 
-// 2. Obtenir par canton et nom
-exports.obtenirParCantonEtNom = async (req, res) => {
+// 2. Obtenir le prix par nom et unité
+exports.obtenirParNomEtUnite = async (req, res) => {
   try {
-    const { canton, nom } = req.params;
-    const produit = await Produit.findOne({ canton, nom });
+    const { nom, unite } = req.params;
+    const produit = await Produit.findOne({ nom, unite });
     if (!produit) return res.status(404).json({ success: false, message: 'Produit introuvable' });
     res.status(200).json({ success: true, data: produit });
   } catch (error) {
@@ -35,7 +35,8 @@ exports.creerProduit = async (req, res) => {
 // 4. Mettre à jour un produit
 exports.mettreAJourProduit = async (req, res) => {
   try {
-    const produitAjour = await Produit.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const produitAjour = await Produit.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!produitAjour) return res.status(404).json({ success: false, message: 'Produit introuvable' });
     res.status(200).json({ success: true, data: produitAjour });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
