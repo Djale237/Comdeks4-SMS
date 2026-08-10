@@ -1,17 +1,16 @@
-// models/Produit.js (Version NETTOYÉE et VALIDÉE pour Djenabou)
-const mongoose = require('mongoose'); // CETTE LIGNE EST MAINTENANT PROPRE
+// models/Produit.js (Version MISE À JOUR pour Djenabou)
+const mongoose = require('mongoose');
 
 const produitSchema = new mongoose.Schema({
     nom: {
         type: String,
         required: [true, 'Un produit doit avoir un nom'],
         trim: true,
-        enum: ['Mil Rouge', 'Sorgho', 'Maïs Blanc', 'Fourrage Hydroponique (Orge)']
+        // ✅ MODIFICATION : "Maïs" tout court est maintenant autorisé
+        enum: ['Mil Rouge', 'Sorgho', 'Maïs', 'Fourrage Hydroponique (Orge)']
     },
-    description: {
-        type: String,
-        trim: true
-    },
+    // ✅ MODIFICATION : Le champ 'description' a été SUPPRIMÉ
+
     prix: {
         type: Number,
         required: [true, 'Un produit doit avoir un prix'],
@@ -20,7 +19,8 @@ const produitSchema = new mongoose.Schema({
     unite: {
         type: String,
         required: [true, 'Un produit doit avoir une unité'],
-        enum: ['sac_100kg', 'kg']
+        // ✅ MODIFICATION : Ajout des nouvelles tailles de sacs
+        enum: ['1kg', '5kg', '15kg', '25kg', '100kg']
     },
     localisation: {
         type: String,
@@ -29,7 +29,8 @@ const produitSchema = new mongoose.Schema({
     categorie: {
         type: String,
         required: [true, 'Une catégorie est obligatoire'],
-        enum: ['Céréale', 'Alimentation Animale']
+        // ✅ MODIFICATION : Seuls "Céréale" ou "Farine" sont autorisés
+        enum: ['Céréale', 'Farine']
     },
     estEnVedette: {
         type: Boolean,

@@ -35,11 +35,15 @@ const utilisateurSchema = new mongoose.Schema(
 );
 
 // Hachage automatique avant sauvegarde (seulement si le mot de passe est modifié)
-utilisateurSchema.pre('save', async function (next) {
-  if (!this.isModified('motDePasse')) return next();
+// models/Utilisateur.js (CODE CORRIGÉ)
+// On enlève "next" des arguments de la fonction[cite: 1]
+utilisateurSchema.pre('save', async function () { 
+  if (!this.isModified('motDePasse')) return; // return tout court, sans next()
+
   const salt = await bcrypt.genSalt(10);
   this.motDePasse = await bcrypt.hash(this.motDePasse, salt);
-  next();
+
+  // Pas de next() ici à la fin[cite: 1]
 });
 
 // Méthode pour comparer le mot de passe saisi avec le hash en base
