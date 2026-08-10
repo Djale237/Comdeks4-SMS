@@ -5,23 +5,33 @@ const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 
+const path = require('path');
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const { GoogleGenAI } = require('@google/genai');
 
 // --- IMPORTS DES MODÈLES ET ROUTES ---
 const Produit = require('./models/Produit');
 const produitRoutes = require('./routes/produitRoutes');
 const authRoutes = require('./routes/authRoutes');
+const notFound = require('./middlewares/notFound');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
 // Middlewares globaux
+app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
 
-// Initialisation SDK Gemini
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Page d'accueil (index.html) uniquement — on n'expose pas le reste du dossier (seeders, confs...)
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+
+// Initialisation SDK Gemini (optionnelle)
+let ai = null;
+if (process.env.GEMINI_API_KEY) {
+  ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+}
 
 // Connexion BDD MongoDB Atlas
 console.log('⏳ Connexion à MongoDB Atlas en cours...');
@@ -44,6 +54,10 @@ app.post('/api/chat', async (req, res) => {
 
     if (!message) {
       return res.status(400).json({ success: false, message: 'Veuillez fournir un message.' });
+    }
+
+    if (!ai) {
+      return res.status(500).json({ success: false, message: 'Clé API Gemini non configurée (GEMINI_API_KEY manquant).' });
     }
 
     const produitsBDD = await Produit.find();
@@ -95,6 +109,10 @@ Question : "${message}"
     });
   }
 });
+
+// Middlewares 404 et gestion d'erreurs (à la fin, après toutes les routes)
+app.use(notFound);
+app.use(errorHandler);
 
 // Démarrage du serveur
 const PORT = process.env.PORT || 5000;

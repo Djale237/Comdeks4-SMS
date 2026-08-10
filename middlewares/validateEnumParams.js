@@ -1,41 +1,41 @@
 // middlewares/validateEnumParams.js
 const Produit = require('../models/Produit');
 
-const capitaliser = (texte) => {
-    if (!texte) return '';
-    return texte.charAt(0).toUpperCase() + texte.slice(1).toLowerCase();
+// Retourne la valeur enum correspondante (insensible à la casse), sinon la valeur d'origine
+const normaliser = (texte, valeurs) => {
+  if (!texte) return texte;
+  const trouve = valeurs.find((v) => v.toLowerCase() === texte.toLowerCase());
+  return trouve || texte;
 };
 
 const validateEnumParams = (req, res, next) => {
-    // Récupération sécurisée des enums au moment de la requête
-    const cantonPath = Produit.schema.path('canton');
-    const nomPath = Produit.schema.path('nom');
+  const nomPath = Produit.schema.path('nom');
+  const unitePath = Produit.schema.path('unite');
 
-    const CANTONS_VALIDES = (cantonPath && cantonPath.enumValues) ? cantonPath.enumValues : [];
-    const PRODUITS_VALIDES = (nomPath && nomPath.enumValues) ? nomPath.enumValues : [];
+  const PRODUITS_VALIDES = nomPath ? nomPath.enumValues : [];
+  const UNITES_VALIDES = unitePath ? unitePath.enumValues : [];
 
-    if (req.params.canton) req.params.canton = capitaliser(req.params.canton);
-    if (req.params.nom) req.params.nom = capitaliser(req.params.nom);
+  // Normalise la casse pour accepter "mais", "SORGHO", "SAC 25 KG", etc.
+  if (req.params.nom) req.params.nom = normaliser(req.params.nom, PRODUITS_VALIDES);
+  if (req.params.unite) req.params.unite = normaliser(req.params.unite, UNITES_VALIDES);
 
-    const { canton, nom } = req.params;
+  const { nom, unite } = req.params;
 
-    // Validation du canton si la liste enum existe dans le Schema
-    if (canton && CANTONS_VALIDES.length > 0 && !CANTONS_VALIDES.includes(canton)) {
-        return res.status(400).json({
-            success: false,
-            error: `Canton invalide. Valeurs acceptées: ${CANTONS_VALIDES.join(', ')}`
-        });
-    }
+  if (nom && PRODUITS_VALIDES.length > 0 && !PRODUITS_VALIDES.includes(nom)) {
+    return res.status(400).json({
+      success: false,
+      error: `Produit invalide. Valeurs acceptées: ${PRODUITS_VALIDES.join(', ')}`
+    });
+  }
 
-    // Validation du produit si la liste enum existe dans le Schema
-    if (nom && PRODUITS_VALIDES.length > 0 && !PRODUITS_VALIDES.includes(nom)) {
-        return res.status(400).json({
-            success: false,
-            error: `Produit invalide. Valeurs acceptées: ${PRODUITS_VALIDES.join(', ')}`
-        });
-    }
+  if (unite && UNITES_VALIDES.length > 0 && !UNITES_VALIDES.includes(unite)) {
+    return res.status(400).json({
+      success: false,
+      error: `Unité invalide. Valeurs acceptées: ${UNITES_VALIDES.join(', ')}`
+    });
+  }
 
-    next();
+  next();
 };
 
 module.exports = validateEnumParams;

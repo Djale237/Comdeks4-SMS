@@ -6,8 +6,11 @@ const produitSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Un produit doit avoir un nom'],
         trim: true,
-        // ✅ MODIFICATION : "Maïs" tout court est maintenant autorisé
-        enum: ['Mil Rouge', 'Sorgho', 'Maïs', 'Fourrage Hydroponique (Orge)']
+        enum: ['Maïs', 'Mil Rouge', 'Sorgho', 'Fourrage Hydroponique (Orge)']
+    },
+    description: {
+        type: String,
+        trim: true
     },
     // ✅ MODIFICATION : Le champ 'description' a été SUPPRIMÉ
 
@@ -19,8 +22,7 @@ const produitSchema = new mongoose.Schema({
     unite: {
         type: String,
         required: [true, 'Un produit doit avoir une unité'],
-        // ✅ MODIFICATION : Ajout des nouvelles tailles de sacs
-        enum: ['1kg', '5kg', '15kg', '25kg', '100kg']
+        enum: ['sachet 1 kg', 'sac 5 kg', 'sac 10 kg', 'sac 25 kg', 'sac 100 kg']
     },
     localisation: {
         type: String,

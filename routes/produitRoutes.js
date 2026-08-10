@@ -4,7 +4,7 @@ const router = express.Router();
 // Importation des contrôleurs
 const {
   listerProduits,
-  obtenirParCantonEtNom,
+  obtenirParNomEtUnite,
   creerProduit,
   mettreAJourProduit,
   supprimerProduit,
@@ -17,7 +17,7 @@ const autoriser = require('../middlewares/autoriser');
 
 // --- ROUTES PUBLIQUES ---
 router.get('/', listerProduits);
-router.get('/:canton/:nom', validateEnumParams, obtenirParCantonEtNom);
+router.get('/:nom/:unite', validateEnumParams, obtenirParNomEtUnite);
 
 // --- ROUTES PROTÉGÉES (Admin & Commerçant) ---
 router.post('/', protect, autoriser('admin', 'commercant'), creerProduit);
