@@ -1,4 +1,5 @@
 const Produit = require('../models/Produit');
+const { obtenirProduit } = require('../services/produitService');
 
 // 1. Lister tous les produits
 exports.listerProduits = async (req, res) => {
@@ -10,7 +11,19 @@ exports.listerProduits = async (req, res) => {
   }
 };
 
-// 2. Obtenir le prix par nom et unité
+// 2. Obtenir le prix par canton et nom (mis à jour avec produitService)
+exports.obtenirParCantonEtNom = async (req, res) => {
+  try {
+    const { canton, nom } = req.params;
+    const produit = await obtenirProduit(canton, nom);
+    if (!produit) return res.status(404).json({ success: false, message: `Aucune donnée trouvée pour ${nom} à ${canton}` });
+    res.status(200).json({ success: true, data: produit });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 3. Obtenir le prix par nom et unité
 exports.obtenirParNomEtUnite = async (req, res) => {
   try {
     const { nom, unite } = req.params;
@@ -22,7 +35,7 @@ exports.obtenirParNomEtUnite = async (req, res) => {
   }
 };
 
-// 3. Créer un produit
+// 4. Créer un produit
 exports.creerProduit = async (req, res) => {
   try {
     const nouveauProduit = await Produit.create(req.body);
@@ -32,7 +45,7 @@ exports.creerProduit = async (req, res) => {
   }
 };
 
-// 4. Mettre à jour un produit
+// 5. Mettre à jour un produit
 exports.mettreAJourProduit = async (req, res) => {
   try {
     const produitAjour = await Produit.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -43,7 +56,7 @@ exports.mettreAJourProduit = async (req, res) => {
   }
 };
 
-// 5. Supprimer un produit
+// 6. Supprimer un produit
 exports.supprimerProduit = async (req, res) => {
   try {
     await Produit.findByIdAndDelete(req.params.id);

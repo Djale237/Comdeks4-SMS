@@ -15,6 +15,8 @@ const { GoogleGenAI } = require('@google/genai');
 const Produit = require('./models/Produit');
 const produitRoutes = require('./routes/produitRoutes');
 const authRoutes = require('./routes/authRoutes');
+const ussdRoutes = require('./routes/ussdRoutes');
+const smsRoutes = require('./routes/smsRoutes');
 const notFound = require('./middlewares/notFound');
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -23,8 +25,10 @@ const app = express();
 // Middlewares globaux
 app.use(cors());
 app.use(express.json());
+// Impératif pour les formulaires envoyés par les passerelles USSD/SMS
+app.use(express.urlencoded({ extended: true }));
 
-// Page d'accueil (index.html) uniquement — on n'expose pas le reste du dossier (seeders, confs...)
+// Page d'accueil (index.html)
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 // Initialisation SDK Gemini (optionnelle)
@@ -40,10 +44,12 @@ mongoose.connect(process.env.MONGO_URI)
   .catch((err) => console.error('❌ Erreur de connexion MongoDB :', err.message));
 
 // ==========================================
-// 1. ROUTES D'AUTHENTIFICATION & PRODUITS
+// 1. ROUTES DE L'APPLICATION
 // ==========================================
 app.use('/api/auth', authRoutes);
 app.use('/api/produits', produitRoutes);
+app.use('/api/ussd', ussdRoutes);
+app.use('/api/sms', smsRoutes);
 
 // ==========================================
 // 2. ROUTE ASSISTANT IA AGRICOLE BOGO
@@ -110,7 +116,7 @@ Question : "${message}"
   }
 });
 
-// Middlewares 404 et gestion d'erreurs (à la fin, après toutes les routes)
+// Middlewares 404 et gestion d'erreurs
 app.use(notFound);
 app.use(errorHandler);
 
