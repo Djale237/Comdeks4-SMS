@@ -1,8 +1,12 @@
 const Produit = require('../models/Produit');
-const { obtenirProduit } = require('../services/produitService');
 
-const CANTONS = Produit.schema.path('canton') ? Produit.schema.path('canton').enumValues : ['Mororo', 'Balda', 'Mokolo'];
-const PRODUITS = Produit.schema.path('nom').enumValues;
+const CANTONS = (Produit.schema.path('canton') && Produit.schema.path('canton').enumValues && Produit.schema.path('canton').enumValues.length > 0) 
+    ? Produit.schema.path('canton').enumValues 
+    : ['Mororo', 'Balda', 'Guinglaye'];
+
+const PRODUITS = (Produit.schema.path('nom') && Produit.schema.path('nom').enumValues && Produit.schema.path('nom').enumValues.length > 0)
+    ? Produit.schema.path('nom').enumValues
+    : ['Maïs', 'Mil Rouge', 'Sorgho', 'Fourrage Hydroponique (Orge)'];
 
 const gererUssd = async (req, res) => {
     res.set('Content-Type', 'text/plain');
@@ -29,13 +33,37 @@ const gererUssd = async (req, res) => {
         } else if (etapes.length === 3) {
             const canton = CANTONS[parseInt(etapes[1], 10) - 1];
             const nom = PRODUITS[parseInt(etapes[2], 10) - 1];
+
             if (!canton || !nom) {
                 reponse = 'END Choix invalide. Veuillez recommencer.';
             } else {
-                const produit = await obtenirProduit(canton, nom);
-                reponse = produit
-                    ? `END ${produit.nom} a ${produit.canton} : ${produit.prix} FCFA/${produit.unite}`
-                    : `END Aucune donnee disponible pour ${nom} a ${canton}.`;
+                const tousProduits = await Produit.find({
+                    nom: { $regex: new RegExp(nom, 'i') },
+                    $or: [
+                        { canton: { $regex: new RegExp(canton, 'i') } },
+                        { localisation: { $regex: new RegExp(canton, 'i') } }
+                    ]
+                });
+
+                if (!tousProduits || tousProduits.length === 0) {
+                    reponse = `END Aucune donnee disponible pour ${nom} a ${canton}.`;
+                } else {
+                    const unitesVues = new Set();
+                    const produitsUniques = tousProduits.filter(p => {
+                        const uniteSimplifiee = p.unite ? p.unite.toLowerCase().replace(/\s+/g, '') : '';
+                        if (unitesVues.has(uniteSimplifiee) || uniteSimplifiee === '1kg') {
+                            return false;
+                        }
+                        unitesVues.add(uniteSimplifiee);
+                        return true;
+                    });
+
+                    const listePrix = produitsUniques
+                        .map(p => `- ${p.unite || 'Unité'} : ${p.prix} FCFA`)
+                        .join('\n');
+
+                    reponse = `END Tarifs ${nom} (${canton}) :\n${listePrix}`;
+                }
             }
         } else {
             reponse = 'END Session invalide. Veuillez recommencer.';

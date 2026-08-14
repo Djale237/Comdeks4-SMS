@@ -1,44 +1,84 @@
 const Produit = require('../models/Produit');
-const { obtenirProduit } = require('../services/produitService');
 const { envoyerSms } = require('../services/smsService');
 const { normaliser } = require('../utils/normaliserTexte');
 
-const CANTONS = Produit.schema.path('canton') ? Produit.schema.path('canton').enumValues : ['Mororo', 'Balda', 'Mokolo'];
-const PRODUITS = Produit.schema.path('nom').enumValues;
+const CANTONS = (Produit.schema.path('canton') && Produit.schema.path('canton').enumValues && Produit.schema.path('canton').enumValues.length > 0)
+    ? Produit.schema.path('canton').enumValues 
+    : ['Mororo', 'Balda', 'Guinglaye'];
+
+const PRODUITS = (Produit.schema.path('nom') && Produit.schema.path('nom').enumValues && Produit.schema.path('nom').enumValues.length > 0)
+    ? Produit.schema.path('nom').enumValues
+    : ['Maïs', 'Mil Rouge', 'Sorgho', 'Fourrage Hydroponique (Orge)'];
 
 const CANTONS_PAR_CLE = Object.fromEntries(CANTONS.map((c) => [normaliser(c), c]));
 const PRODUITS_PAR_CLE = Object.fromEntries(PRODUITS.map((p) => [normaliser(p), p]));
 
 const gererSms = async (req, res) => {
-    // Accusé de réception immédiat à la passerelle (section 6.7 du document)
-    res.sendStatus(200);
+    res.status(200).send('OK');
 
     const { from, text = '' } = req.body;
-    const mots = text.trim().split(/\s+/).map(normaliser);
+    
+    // Nettoyage des mots de liaison
+    const mots = text
+        .trim()
+        .replace(/\b(du|de|d|la|le)\b/gi, '')
+        .split(/\s+/)
+        .map(normaliser)
+        .filter(Boolean);
+
+    let reponseSms = '';
 
     try {
         if (mots[0] !== 'PRIX' || mots.length < 3) {
-            await envoyerSms(from, 'Format invalide. Envoyez PRIX PRODUIT CANTON');
-            return;
+            reponseSms = 'Format invalide. Envoyez PRIX PRODUIT CANTON (Ex: PRIX MIL ROUGE BALDA)';
+        } else {
+            const cantonBrut = mots[mots.length - 1];
+            const produitBrut = mots.slice(1, mots.length - 1).join(' ');
+
+            const canton = CANTONS_PAR_CLE[cantonBrut] || cantonBrut;
+            const nom = PRODUITS_PAR_CLE[produitBrut] || produitBrut;
+
+            const produits = await Produit.find({
+                nom: { $regex: new RegExp(nom, 'i') },
+                $or: [
+                    { canton: { $regex: new RegExp(canton, 'i') } },
+                    { localisation: { $regex: new RegExp(canton, 'i') } }
+                ]
+            });
+
+            if (!produits || produits.length === 0) {
+                reponseSms = `Aucune donnee disponible pour ${nom} a ${canton}.`;
+            } else {
+                const unitesVues = new Set();
+                const produitsUniques = produits.filter(p => {
+                    const u = p.unite ? p.unite.toLowerCase().replace(/\s+/g, '') : '';
+                    if (unitesVues.has(u) || u === '1kg') return false;
+                    unitesVues.add(u);
+                    return true;
+                });
+
+                const listePrix = produitsUniques
+                    .map(p => `${p.unite || 'Unité'}: ${p.prix} FCFA`)
+                    .join(', ');
+
+                reponseSms = `${nom} a ${canton}: ${listePrix}.`;
+            }
         }
 
-        const nom = PRODUITS_PAR_CLE[mots[1]];
-        const canton = CANTONS_PAR_CLE[mots[2]];
+        console.log(`\n----------------------------------------`);
+        console.log(`📩 SMS reçu de : ${from}`);
+        console.log(`💬 Message : "${text}"`);
+        console.log(`📤 Réponse SMS préparée : "${reponseSms}"`);
+        console.log(`----------------------------------------\n`);
 
-        if (!nom || !canton) {
-            await envoyerSms(from, 'Produit ou canton non reconnu. Ex: PRIX MAIS MORORO');
-            return;
+        try {
+            await envoyerSms(from, reponseSms);
+        } catch (apiError) {
+            console.log(`⚠️ (Mode Dev) L'API Africa's Talking a renvoyé ${apiError.message}`);
         }
 
-        const produit = await obtenirProduit(canton, nom);
-        const message = produit
-            ? `${produit.nom} a ${produit.canton}: ${produit.prix} FCFA/${produit.unite}.`
-            : `Aucune donnee disponible pour ${nom} a ${canton}.`;
-
-        await envoyerSms(from, message);
     } catch (error) {
-        console.error('Erreur SMS:', error.message);
-        await envoyerSms(from, 'Une erreur est survenue. Veuillez reessayer plus tard.');
+        console.error('Erreur traitement SMS:', error.message);
     }
 };
 
