@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Ajout Produit</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f9; }
+        .card { background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        h2 { text-align: center; color: #333; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, select, button { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background: #28a745; color: white; border: none; margin-top: 15px; font-weight: bold; cursor: pointer; }
+        .msg { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; text-align: center; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Espace Admin</h2>
+    
+    <label>Token Administrateur :</label>
+    <input type="text" id="token" placeholder="Colle ton Token JWT ici">
+
+    <hr style="margin: 20px 0;">
+
+    <label>Nom du produit :</label>
+    <input type="text" id="nom" placeholder="Ex: Maïs">
+
+    <label>Canton :</label>
+    <select id="canton">
+        <option value="Guinglaye">Guinglaye</option>
+        <option value="Mororo">Mororo</option>
+        <option value="Balda">Balda</option>
+    </select>
+
+    <label>Unité / Conditionnement :</label>
+    <input type="text" id="unite" placeholder="Ex: sac 100 kg">
+
+    <label>Prix (FCFA) :</label>
+    <input type="number" id="prix" placeholder="Ex: 22000">
+
+    <button onclick="ajouterProduit()">Ajouter le produit</button>
+
+    <div id="message" class="msg"></div>
+</div>
+
+<script>
+async function ajouterProduit() {
+    const token = document.getElementById('token').value;
+    const nom = document.getElementById('nom').value;
+    const canton = document.getElementById('canton').value;
+    const unite = document.getElementById('unite').value;
+    const prix = document.getElementById('prix').value;
+    const msgDiv = document.getElementById('message');
+
+    if (!token) {
+        alert("Veuillez coller le token d'administration !");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/produits', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ nom, canton, unite, prix: Number(prix) })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            msgDiv.className = "msg success";
+            msgDiv.innerText = "Produit ajouté avec succès !";
+            msgDiv.style.display = "block";
+        } else {
+            msgDiv.className = "msg error";
+            msgDiv.innerText = data.message || "Erreur lors de l'ajout";
+            msgDiv.style.display = "block";
+        }
+    } catch (err) {
+        msgDiv.className = "msg error";
+        msgDiv.innerText = "Erreur de connexion au serveur";
+        msgDiv.style.display = "block";
+    }
+}
+</script>
+
+</body>
+</html>
