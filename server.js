@@ -16,6 +16,9 @@ const produitRoutes = require('./routes/produitRoutes');
 const authRoutes = require('./routes/authRoutes');
 const ussdRoutes = require('./routes/ussdRoutes');
 const smsRoutes = require('./routes/smsRoutes');
+const statsRoutes = require('./routes/statsRoutes');
+const calendrierRoutes = require('./routes/calendrierRoutes');
+const alerteRoutes = require('./routes/alerteRoutes');
 const assistantRoutes = require('./routes/assistantRoutes');
 
 const notFound = require('./middlewares/notFound');
@@ -46,8 +49,11 @@ mongoose.connect(process.env.MONGO_URI)
 // 1. ROUTES DE L'APPLICATION
 // ==========================================
 app.use('/api/auth', authRoutes);
+app.use('/api/stats', statsRoutes);
 app.use('/api/produits', produitRoutes);
+app.use('/api/calendrier', calendrierRoutes);
 app.use('/api/ussd', ussdRoutes);
+app.use('/api/alertes', alerteRoutes);
 app.use('/api/sms', smsRoutes);
 
 // Route Assistant IA avec Function Calling (Étape 7)

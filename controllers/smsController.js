@@ -1,6 +1,7 @@
 const Produit = require('../models/Produit');
 const { envoyerSms } = require('../services/smsService');
 const { normaliser } = require('../utils/normaliserTexte');
+const calendrierService = require('../services/calendrierService');
 
 const CANTONS = (Produit.schema.path('canton') && Produit.schema.path('canton').enumValues && Produit.schema.path('canton').enumValues.length > 0)
     ? Produit.schema.path('canton').enumValues 
@@ -29,8 +30,17 @@ const gererSms = async (req, res) => {
     let reponseSms = '';
 
     try {
-        if (mots[0] !== 'PRIX' || mots.length < 3) {
-            reponseSms = 'Format invalide. Envoyez PRIX PRODUIT CANTON (Ex: PRIX MIL ROUGE BALDA)';
+        if (mots[0] === 'CALENDRIER') {
+            // NOUVEAU : format "CALENDRIER MAIS" / "CALENDRIER MIL" / "CALENDRIER SORGHO"
+            if (mots.length < 2) {
+                reponseSms = 'Format invalide. Envoyez CALENDRIER CULTURE (Ex: CALENDRIER MAIS)';
+            } else {
+                const cultureBrute = mots.slice(1).join(' ');
+                const calendrier = await calendrierService.obtenirCalendrier(cultureBrute);
+                reponseSms = calendrierService.formaterPourSms(calendrier);
+            }
+        } else if (mots[0] !== 'PRIX' || mots.length < 3) {
+            reponseSms = 'Format invalide. Envoyez PRIX PRODUIT CANTON ou CALENDRIER CULTURE';
         } else {
             const cantonBrut = mots[mots.length - 1];
             const produitBrut = mots.slice(1, mots.length - 1).join(' ');

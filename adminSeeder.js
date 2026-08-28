@@ -23,7 +23,6 @@ const creerAdmin = async () => {
             role: 'admin',                 // Obligatoire pour le nouveau modèle (Sécurisation)
             canton: 'Mororo'              // Obligatoire pour le nouveau modèle
         };
-
         // Connexion à MongoDB Atlas
         console.log('⏳ Connexion à MongoDB Atlas...');
         await connectDB();
