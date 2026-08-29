@@ -1,4 +1,4 @@
-// models/Produit.js (Version MISE À JOUR pour Djenabou)
+// models/Produit.js
 const mongoose = require('mongoose');
 
 const produitSchema = new mongoose.Schema({
@@ -12,8 +12,6 @@ const produitSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    // ✅ MODIFICATION : Le champ 'description' a été SUPPRIMÉ
-
     prix: {
         type: Number,
         required: [true, 'Un produit doit avoir un prix'],
@@ -22,17 +20,21 @@ const produitSchema = new mongoose.Schema({
     unite: {
         type: String,
         required: [true, 'Un produit doit avoir une unité'],
-        enum: ['sachet 1 kg', 'sac 5 kg', 'sac 10 kg', 'sac 25 kg', 'sac 100 kg']
+        enum: ['sachet 1 kg', 'sac 5 kg', 'sac 10 kg', 'sac 25 kg', 'sac 100 kg', 'Sac 10 kg']
     },
     localisation: {
         type: String,
         required: [true, 'Une localisation est obligatoire']
     },
+    canton: {
+        type: String,
+        enum: ['Mororo', 'Balda', 'Guinglaye', 'Bogo centre']
+    },
     categorie: {
         type: String,
         required: [true, 'Une catégorie est obligatoire'],
-        // ✅ MODIFICATION : Seuls "Céréale" ou "Farine" sont autorisés
-        enum: ['Céréale', 'Farine']
+        // ✅ CORRECTION : Ajout de 'Céréales' (avec s) pour valider la saisie de l'admin
+        enum: ['Céréale', 'Céréales', 'Farine', 'Fourrage']
     },
     estEnVedette: {
         type: Boolean,
