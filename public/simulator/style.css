@@ -1,0 +1,31 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+.phone {
+  width: 360px;
+  height: 680px;
+  background: #ffffff;
+  border-radius: 40px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  border: 12px solid #333;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.phone-header { background: #1b4d3e; color: white; padding: 15px 15px 10px 15px; }
+.phone-info { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 8px; opacity: 0.8; }
+.contact-header { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 35px; height: 35px; background: #fff; color: #1b4d3e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+.chat-box { flex: 1; padding: 15px; background: #e5ddd5; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.message { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 13.5px; line-height: 1.4; word-wrap: break-word; }
+.message.sent { background: #dcf8c6; align-self: flex-end; border-bottom-right-radius: 2px; }
+.message.received { background: #ffffff; align-self: flex-start; border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.message.system { background: #fff3cd; color: #856404; font-size: 12px; align-self: center; text-align: center; border-radius: 8px; }
+
+.phone-input { display: flex; padding: 10px; background: #f0f0f0; gap: 5px; border-top: 1px solid #ccc; }
+.phone-input input[type="text"] { flex: 1; padding: 10px 12px; border: 1px solid #ccc; border-radius: 20px; outline: none; }
+.phone-input button { background: #1b4d3e; color: white; border: none; padding: 0 16px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+.phone-input button:hover { background: #143a2f; }

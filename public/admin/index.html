@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Administrateur - COMDEKS4</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Menu latéral -->
+  <div class="sidebar">
+    <h2>COMDEKS4 Admin</h2>
+    <ul>
+      <li id="menu-vue" class="menu-item active" onclick="changerOnglet('vue')">📊 Vue générale</li>
+      <li id="menu-produits" class="menu-item" onclick="changerOnglet('produits')">🌾 Produits & Prix</li>
+      <li id="menu-alertes" class="menu-item" onclick="changerOnglet('alertes')">📢 Envoyer une Alerte</li>
+      <li id="menu-calendrier" class="menu-item" onclick="changerOnglet('calendrier')">📅 Calendrier Agricole</li>
+    </ul>
+  </div>
+
+  <!-- Contenu Principal -->
+  <div class="main-content">
+    <header>
+      <h1 id="titre-page">Panneau de Gestion Agricole</h1>
+      <span class="badge">Administrateur</span>
+    </header>
+
+    <!-- SECTION 1: VUE GÉNÉRALE -->
+    <section id="section-vue" class="content-section">
+      <div class="cards">
+        <div class="card">
+          <h3>Produits suivis</h3>
+          <p id="totalProduits">0</p>
+        </div>
+        <div class="card">
+          <h3>Cantons couverts</h3>
+          <p>3 (Mororo, Guinglaye, Balda)</p>
+        </div>
+        <div class="card">
+          <h3>Canal principal</h3>
+          <p>SMS & USSD</p>
+        </div>
+      </div>
+      
+      <div class="welcome-box">
+        <h2>Bienvenue sur l'espace d'administration</h2>
+        <p>Utilisez le menu de gauche pour mettre à jour les prix des marchés, publier de nouvelles alertes SMS ou ajuster le calendrier agricole pour les agriculteurs.</p>
+      </div>
+    </section>
+
+    <!-- SECTION 2: PRODUITS & PRIX -->
+    <section id="section-produits" class="content-section" style="display: none;">
+      <div class="form-card">
+        <h3>➕ Ajouter un nouveau produit</h3>
+        <form id="ajoutProduitForm" class="grid-form">
+          <input type="text" id="pNom" placeholder="Nom du produit (Ex: Maïs)" required>
+          <input type="text" id="pCategorie" placeholder="Catégorie (Ex: Céréale)" required>
+          <input type="text" id="pUnite" placeholder="Unité (Ex: sac 25 kg)" required>
+          <input type="number" id="pPrix" placeholder="Prix (FCFA)" required>
+          <select id="pCanton" required>
+            <option value="Mororo">Mororo</option>
+            <option value="Guinglaye">Guinglaye</option>
+            <option value="Balda">Balda</option>
+          </select>
+          <button type="submit" class="btn-primary">Enregistrer le Produit</button>
+        </form>
+        <div id="produitFeedback" class="feedback"></div>
+      </div>
+
+      <h3>🌾 Liste et Édition des Prix</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Catégorie</th>
+              <th>Unité</th>
+              <th>Canton</th>
+              <th>Prix (FCFA)</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="listeProduitsTable">
+            <tr><td colspan="6">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 3: ALERTES -->
+    <section id="section-alertes" class="content-section" style="display: none;">
+      <div class="form-card">
+        <h2>📢 Diffuser une Alerte SMS par Canton</h2>
+        <form id="alerteForm">
+          <label>Type d'alerte :</label>
+          <select id="alerteType" required>
+            <option value="climatique">Climatique</option>
+            <option value="phytosanitaire">Phytosanitaire</option>
+            <option value="marche">Marché</option>
+          </select>
+
+          <label>Titre :</label>
+          <input type="text" id="alerteTitre" placeholder="Ex: Alerte Chenilles" required>
+
+          <label>Message SMS (Max 300 caractères) :</label>
+          <textarea id="alerteMessage" maxlength="300" placeholder="Message SMS..." required></textarea>
+
+          <label>Cantons concernés :</label>
+          <select id="alerteCanton">
+            <option value="">Tous les cantons</option>
+            <option value="Mororo">Mororo</option>
+            <option value="Guinglaye">Guinglaye</option>
+            <option value="Balda">Balda</option>
+          </select>
+
+          <button type="submit" class="btn-primary">Diffuser l'Alerte</button>
+        </form>
+        <div id="alerteFeedback" class="feedback"></div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: CALENDRIER AGRICOLE -->
+    <section id="section-calendrier" class="content-section" style="display: none;">
+      <div class="form-card">
+        <h3>📅 Ajouter / Mettre à jour un Calendrier Agricole</h3>
+        <form id="calendrierForm">
+          <label>Nom de la culture :</label>
+          <input type="text" id="calCulture" placeholder="Ex: Maïs, Sorgho, Mil Rouge" required>
+
+          <label>Conseil / Étapes de la culture :</label>
+          <textarea id="calConseil" placeholder="Ex: Semis en Juin, Premier sarclage 15j après levée, Récolte en Octobre." required></textarea>
+
+          <button type="submit" class="btn-primary">Enregistrer le Calendrier</button>
+        </form>
+        <div id="calFeedback" class="feedback"></div>
+      </div>
+
+      <h3>📅 Calendriers actuellement enregistrés</h3>
+      <div id="calendrierContainer" style="margin-top: 15px;"></div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

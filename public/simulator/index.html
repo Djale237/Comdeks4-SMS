@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulateur GSM - COMDEKS4 SMS</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="phone">
+    <div class="phone-header">
+      <div class="notch"></div>
+      <div class="phone-info">
+        <span>📶 COMDEKS4 GSM</span>
+        <span>100% 🔋</span>
+      </div>
+      <div class="contact-header">
+        <div class="avatar">💬</div>
+        <div>
+          <h3>Service SMS Agricole</h3>
+          <small>Numéro dédié (+237)</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+      <div class="message system">
+        Bienvenue sur le simulateur SMS ! Tapez un mot-clé (ex: <i>"Prix du maïs à Balda"</i> ou <i>"Conseil Maïs"</i>).
+      </div>
+    </div>
+
+    <form id="smsForm" class="phone-input">
+      <input type="text" id="phoneNum" value="+237690000000" placeholder="Numéro expéditeur" required style="display:none;">
+      <input type="text" id="smsText" placeholder="Écrire un message SMS..." required autocomplete="off">
+      <button type="submit">Envoyer</button>
+    </form>
+  </div>
+
+  <script src="simulator.js"></script>
+</body>
+</html>

@@ -32,12 +32,12 @@ app.use(express.json());
 // Impératif pour les formulaires envoyés par les passerelles USSD/SMS
 app.use(express.urlencoded({ extended: true }));
 
-// --- PAGES STATIQUES HTML ---
-// Page d'accueil (index.html)
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// --- PAGES STATIQUES & FRONTEND ---
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Page d'administration (admin.html)
-app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'simulator', 'index.html')));
+app.get('/simulator', (req, res) => res.sendFile(path.join(__dirname, 'public', 'simulator', 'index.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html')));
 
 // Connexion BDD MongoDB Atlas
 console.log('⏳ Connexion à MongoDB Atlas en cours...');
@@ -56,7 +56,7 @@ app.use('/api/ussd', ussdRoutes);
 app.use('/api/alertes', alerteRoutes);
 app.use('/api/sms', smsRoutes);
 
-// Route Assistant IA avec Function Calling (Étape 7)
+// Route Assistant IA avec Function Calling
 app.use('/api/assistant', assistantRoutes);
 
 // Middlewares 404 et gestion d'erreurs

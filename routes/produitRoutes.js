@@ -19,9 +19,16 @@ const autoriser = require('../middlewares/autoriser');
 router.get('/', listerProduits);
 router.get('/:nom/:unite', validateEnumParams, obtenirParNomEtUnite);
 
-// --- ROUTES PROTÉGÉES (Admin & Commerçant) ---
-router.post('/', protect, autoriser('admin', 'commercant'), creerProduit);
-router.put('/:id', protect, autoriser('admin', 'commercant'), mettreAJourProduit);
-router.delete('/:id', protect, autoriser('admin'), supprimerProduit);
+// --- ROUTES POUR DEMO / TESTS (Protection temporairement désactivée) ---
+router.post('/', creerProduit);
+router.put('/:id', mettreAJourProduit);
+router.delete('/:id', supprimerProduit);
+
+/* 
+// --- ROUTES PROTÉGÉES D'ORIGINE (À réactiver après la soutenance si besoin) ---
+// router.post('/', protect, autoriser('admin', 'commercant'), creerProduit);
+// router.put('/:id', protect, autoriser('admin', 'commercant'), mettreAJourProduit);
+// router.delete('/:id', protect, autoriser('admin'), supprimerProduit);
+*/
 
 module.exports = router;
