@@ -35,7 +35,7 @@ app.use(express.urlencoded({ extended: true }));
 // --- PAGES STATIQUES & FRONTEND ---
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'simulator', 'index.html')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.get('/simulator', (req, res) => res.sendFile(path.join(__dirname, 'public', 'simulator', 'index.html')));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html')));
 
