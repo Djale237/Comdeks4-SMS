@@ -1,6 +1,30 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <script>
+    (function checkAuth() {
+      const token = localStorage.getItem('adminToken');
+
+      // Si l'utilisateur n'a pas le jeton valide
+      if (token !== 'connected') {
+        const password = prompt("🔒 Accès Administrateur COMDEKS4\nVeuillez saisir le mot de passe :");
+
+        if (password === 'admin2026') {
+          localStorage.setItem('adminToken', 'connected');
+        } else {
+          alert("❌ Accès refusé ! Mot de passe incorrect.");
+          localStorage.removeItem('adminToken');
+          window.location.replace("/"); // Redirection immédiate
+        }
+      }
+    })();
+
+    // Fonction de déconnexion
+    function logout() {
+      localStorage.removeItem('adminToken');
+      window.location.replace("/");
+    }
+  </script>
   <meta charset="UTF-8">
   <title>Dashboard Administrateur - COMDEKS4</title>
   <link rel="stylesheet" href="style.css">
@@ -19,9 +43,14 @@
 
   <!-- Contenu Principal -->
   <div class="main-content">
-    <header>
-      <h1 id="titre-page">Panneau de Gestion Agricole</h1>
-      <span class="badge">Administrateur</span>
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 id="titre-page">Panneau de Gestion Agricole</h1>
+        <span class="badge">Administrateur</span>
+      </div>
+      <button onclick="logout()" style="background-color: #d32f2f; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+        🚪 Déconnexion
+      </button>
     </header>
 
     <!-- SECTION 1: VUE GÉNÉRALE -->
